@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="건강지킴이 퀴즈">
+<meta name="theme-color" content="#EDF5E3">
+<link rel="icon" href="img/welly-smile.png">
+<link rel="apple-touch-icon" href="img/welly-smile.png">
+<style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>건강지킴이 퀴즈</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gothic+A1:wght@400;600;800&display=swap">
+<style>
+/* Layout: one centered booth card per screen (start → question → result), sized for a tablet held at arm's length.
+   Single light look on purpose: 건강지킴이 brand pastels (연두 #EDF5E3, 하늘 #CEEAF9) + foundation logo blue/brown. */
+:root {
+  --yeondu: #EDF5E3;
+  --haneul: #CEEAF9;
+  --bg: #EDF5E3;
+  --card: #ffffff;
+  --ink: #4a3f3f;
+  --muted: #7a6e6e;
+  --blue: #3953a0;
+  --leaf: #4e9a3a;
+  --leaf-soft: #EDF5E3;
+  --sun: #3953a0;
+  --sun-soft: #CEEAF9;
+  --wrong: #d4523f;
+  --wrong-soft: #fde6e1;
+  --line: #d6e6c8;
+  --choice-bg: #f7fbf2;
+  --display: "Jua", "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --body: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  color-scheme: light;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg) linear-gradient(160deg, var(--yeondu) 0%, var(--yeondu) 45%, var(--haneul) 100%) fixed;
+  color: var(--ink); font-family: var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px; box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.wrap { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
+.brand { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand img { display: block; height: clamp(28px, 6vw, 44px); width: auto; max-width: 100%; }
+.badge { font-family: var(--display); font-size: 1rem; background: var(--sun-soft); color: var(--ink); padding: 6px 14px; border-radius: 999px; }
+.card { background: var(--card); border: 2px solid var(--line); border-radius: 28px; padding: clamp(24px, 5vw, 44px); display: flex; flex-direction: column; gap: 22px; }
+h1, h2 { font-family: var(--display); font-weight: 400; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.2rem, 7vw, 3.6rem); line-height: 1.15; }
+h1 em { font-style: normal; color: var(--leaf); }
+h2 { font-size: clamp(1.5rem, 4.6vw, 2.2rem); line-height: 1.35; }
+p { margin: 0; line-height: 1.6; font-size: clamp(1.05rem, 2.6vw, 1.25rem); }
+.muted { color: var(--muted); }
+.tag { align-self: flex-start; font-weight: 800; font-size: .9rem; letter-spacing: .04em; color: var(--leaf); background: var(--leaf-soft); padding: 6px 12px; border-radius: 8px; }
+button { font: inherit; cursor: pointer; border: none; }
+button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
+.primary {
+  font-family: var(--display); font-size: clamp(1.4rem, 4vw, 1.8rem);
+  background: var(--blue); color: #fff; border-radius: 20px; padding: 20px 28px;
+  box-shadow: 0 6px 0 #26386e;
+  transition: transform .08s;
+}
+.primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #26386e; }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.choices.ox .choice { font-size: clamp(3rem, 12vw, 5rem); padding: 24px 0; font-family: var(--display); }
+.choice {
+  min-width: 0; text-align: left; display: flex; gap: 12px; align-items: center;
+  background: var(--choice-bg); color: var(--ink); border: 3px solid var(--line); border-radius: 18px;
+  padding: 18px; font-weight: 600; font-size: clamp(1.05rem, 2.8vw, 1.3rem); line-height: 1.35;
+}
+.choices.ox .choice { justify-content: center; }
+.choice .num { flex: none; width: 2.1em; height: 2.1em; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 2px solid var(--line); font-family: var(--display); font-weight: 400; }
+.choice:hover:not(:disabled) { border-color: var(--leaf); }
+.choice:disabled { cursor: default; }
+.choice.correct { border-color: var(--leaf); background: var(--leaf-soft); }
+.choice.picked-wrong { border-color: var(--wrong); background: var(--wrong-soft); }
+.choice.dim { opacity: .45; }
+.feedback { border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+.feedback.ok { background: var(--leaf-soft); }
+.feedback.no { background: var(--wrong-soft); }
+.feedback .head { font-family: var(--display); font-size: clamp(1.8rem, 6vw, 2.6rem); }
+.feedback.ok .head { color: var(--leaf); }
+.feedback.no .head { color: var(--wrong); }
+.chars { display: flex; align-items: flex-end; justify-content: center; gap: clamp(8px, 3vw, 24px); }
+.chars img { display: block; height: auto; max-width: 45%; }
+.chars .welly { width: clamp(110px, 26vw, 170px); }
+.chars .kimi { width: clamp(80px, 18vw, 120px); }
+.q-head { display: flex; align-items: center; gap: 14px; }
+.q-head img { width: clamp(56px, 12vw, 76px); height: auto; flex: none; }
+.fb-row { display: flex; align-items: center; gap: 16px; }
+.fb-faces { flex: none; display: flex; align-items: flex-end; gap: 6px; }
+.fb-faces img { display: block; height: auto; }
+.fb-faces .welly { width: clamp(64px, 14vw, 96px); }
+.fb-faces .kimi { width: clamp(48px, 10vw, 70px); }
+.fb-body { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+@media (max-width: 420px) { .fb-row { flex-direction: column; align-items: flex-start; } }
+/* Gift pick: two boxes in the characters' colors (웰리 #00D680, 키미 #FFC500), ribbon in their shared orange #FF5800 */
+.gifts { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(14px, 4vw, 28px); }
+.gift { position: relative; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--ink); }
+.gift .art { position: relative; width: 100%; max-width: 220px; aspect-ratio: 1; }
+.gift .body, .gift .lid { position: absolute; left: 50%; transform: translateX(-50%); border: 4px solid #1a1a1a; }
+.gift .body { bottom: 0; width: 78%; height: 58%; border-radius: 10px; }
+.gift .lid { top: 22%; width: 92%; height: 20%; border-radius: 10px; transition: transform .5s cubic-bezier(.3,1.6,.5,1); z-index: 2; }
+.gift .body::after, .gift .lid::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 18%; transform: translateX(-50%); background: #FF5800; }
+.gift .bow { position: absolute; top: 6%; left: 50%; transform: translateX(-50%); width: 40%; height: 18%; z-index: 3; transition: transform .5s cubic-bezier(.3,1.6,.5,1), opacity .3s; }
+.gift .bow::before, .gift .bow::after { content: ""; position: absolute; top: 0; width: 48%; height: 100%; background: #FF5800; border: 4px solid #1a1a1a; border-radius: 50% 50% 10% 50%; }
+.gift .bow::before { left: 0; transform: rotate(-20deg); }
+.gift .bow::after { right: 0; transform: scaleX(-1) rotate(-20deg); }
+.gift.g1 .body, .gift.g1 .lid { background: #00D680; }
+.gift.g2 .body, .gift.g2 .lid { background: #FFC500; }
+.gift .label { font-family: var(--display); font-size: clamp(1.2rem, 3.6vw, 1.5rem); }
+.gift .prize { position: absolute; left: 50%; bottom: 30%; transform: translate(-50%, 30%) scale(.4); opacity: 0; z-index: 1; transition: transform .45s .15s cubic-bezier(.3,1.6,.5,1), opacity .2s .15s; width: 62%; }
+.gift .prize img { display: block; width: 100%; height: auto; }
+.gifts { padding-top: clamp(28px, 6vw, 48px); }
+/* Opened: lid tips off to the side, bow drops away, character pops up in front of the box */
+.gift.open .lid { transform: translate(-82%, -30%) rotate(-30deg); z-index: 1; }
+.gift.open .bow { opacity: 0; transform: translate(-50%, -40%) scale(.5); }
+.gift.open .prize { transform: translate(-50%, -12%) scale(1); opacity: 1; z-index: 5; }
+.gift .prize img { filter: drop-shadow(0 4px 0 rgba(0,0,0,.08)); }
+.gift:not(:disabled):hover .art { transform: rotate(-3deg); }
+.gift .art { transition: transform .15s; }
+.gift:disabled { cursor: default; }
+.gift.other { opacity: .45; }
+.prize-banner { text-align: center; display: flex; flex-direction: column; gap: 6px; border-radius: 20px; padding: 20px; background: var(--sun-soft); }
+.prize-banner .big { font-family: var(--display); font-size: clamp(2.2rem, 8vw, 3.4rem); color: var(--blue); }
+@media (prefers-reduced-motion: reduce) { .gift .lid, .gift .bow, .gift .prize, .gift .art { transition: none; } }
+.staff { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: .9rem; color: var(--muted); }
+.staff button { background: none; color: var(--muted); text-decoration: underline; font-size: .9rem; padding: 4px; }
+.staff span { font-variant-numeric: tabular-nums; }
+@media (max-width: 520px) { .choices:not(.ox) { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: no-preference) {
+  .pop { animation: pop .35s ease-out; }
+  @keyframes pop { from { transform: scale(.96); opacity: .4; } to { transform: none; opacity: 1; } }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="brand">
+    <img src="logo.webp" alt="한국암웨이 미래재단">
+
+    <span class="badge">🎉 2027년 20주년</span>
+  </div>
+
+  <section class="card pop" id="screen-start">
+    <div class="chars">
+      <img class="welly" src="img/welly-full.png" alt="웰리">
+      <img class="kimi" src="img/kimi-full.png" alt="키미">
+    </div>
+    <h1>건강지킴이<br><em>퀴즈 도전!</em></h1>
+    <p class="muted">버튼을 누르면 문제 1개가 랜덤으로 나와요.<br>정답을 맞혀 보세요!</p>
+    <button class="primary" id="btn-start">문제 뽑기</button>
+  </section>
+
+  <section class="card pop" id="screen-quiz" hidden>
+    <div class="q-head">
+      <img src="img/welly-expect.png" alt="">
+      <span class="tag" id="q-tag">4지선다</span>
+    </div>
+    <h2 id="q-text"></h2>
+    <div class="choices" id="q-choices"></div>
+    <div class="feedback" id="q-feedback" hidden>
+      <div class="fb-row">
+        <div class="fb-faces">
+          <img class="welly" id="fb-welly" src="img/welly-smile.png" alt="">
+          <img class="kimi" id="fb-kimi" src="img/kimi-smile.png" alt="">
+        </div>
+        <div class="fb-body">
+          <div class="head" id="fb-head"></div>
+          <p id="fb-text"></p>
+        </div>
+      </div>
+    </div>
+    <button class="primary" id="btn-next" hidden>🎁 선물 뽑으러 가기</button>
+  </section>
+
+  <section class="card pop" id="screen-gift" hidden>
+    <h2>정답 선물! 상자 하나를 골라 보세요</h2>
+    <div class="gifts" id="gifts">
+      <button class="gift g1" type="button" id="gift-0">
+        <span class="art"><span class="prize"><img alt=""></span><span class="body"></span><span class="lid"></span><span class="bow"></span></span>
+        <span class="label">초록 상자</span>
+      </button>
+      <button class="gift g2" type="button" id="gift-1">
+        <span class="art"><span class="prize"><img alt=""></span><span class="body"></span><span class="lid"></span><span class="bow"></span></span>
+        <span class="label">노란 상자</span>
+      </button>
+    </div>
+    <div class="prize-banner pop" id="prize-banner" hidden>
+      <div class="big" id="prize-name"></div>
+      <p id="prize-text"></p>
+    </div>
+    <button class="primary" id="btn-again" hidden>다음 친구 도전하기</button>
+  </section>
+
+  <div class="staff">
+    <span id="stats">참여 0명 · 정답 0명</span>
+    <button id="btn-reset" type="button">기록 초기화</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    type: "4지선다",
+    q: "🎉 2027년, 건강지킴이는 몇 주년을 맞을까요?",
+    choices: ["10주년", "15주년", "20주년", "25주년"],
+    answer: 2,
+    ok: "딩동댕! 🎉 건강지킴이는 2007년에 시작해 내년에 20주년을 맞아요. 20년 동안 아이들의 건강을 지켜 왔답니다!",
+    hint: "아쉬워요! 😢 힌트: 건강지킴이는 2007년에 시작했어요. 2027년까지 몇 년일까요?"
+  },
+  {
+    type: "OX",
+    q: "건강지킴이는 아이들의 ‘몸 건강’만 챙기는 프로그램이다.",
+    choices: ["O", "X"],
+    answer: 1,
+    ok: "정답이에요! 👏 건강지킴이는 몸 건강뿐 아니라 마음 건강, 경제·진로 역량까지 함께 키워요.",
+    hint: "앗, 아쉬워요! 힌트: 건강지킴이에는 마음지킴이와 경제교육도 있어요."
+  },
+  {
+    type: "4지선다",
+    q: "영양교육에서 균형 잡힌 식사를 배울 때 쓰는 그림은 무엇일까요? “식품구성○○○”",
+    choices: ["피라미드", "자전거", "무지개", "시계"],
+    answer: 1,
+    ok: "정답! 🚲 식품구성자전거의 바퀴가 잘 굴러가려면 여러 음식을 골고루 먹어야 해요!",
+    hint: "아쉬워요! 힌트: 두 바퀴가 잘 굴러가야 앞으로 나아가는 탈것이에요."
+  },
+  {
+    type: "OX",
+    q: "마음지킴이 프로그램에서는 미술과 음악으로 내 마음을 표현해 본다.",
+    choices: ["O", "X"],
+    answer: 0,
+    ok: "맞아요! 🎨🎵 마음지킴이에서는 그림을 그리고 음악을 하며 내 마음을 표현해요.",
+    hint: "앗, 아쉬워요! 힌트: 마음지킴이는 미술치료와 음악치료 프로그램이에요. 🎨🎵"
+  },
+  {
+    type: "4지선다",
+    q: "건강지킴이 측정 프로그램이 아닌 것은?",
+    choices: ["체성분(인바디) 측정", "체형불균형(엑스바디) 측정", "AI 영양사(영양지수 검사)", "체력 측정"],
+    answer: 3,
+    ok: "정답이에요! 📏 건강지킴이 측정 프로그램은 체성분, 체형불균형, 영양지수 검사 세 가지예요. 체력은 운동교육 시간에 신나게 길러요! 🏃",
+    hint: "아쉬워요! 힌트: 측정 프로그램은 기계나 검사로 몸 상태를 확인해요. 달리기와 놀이는 어느 시간에 할까요? 🏃"
+  }
+];
+const NUMS = ["①", "②", "③", "④"];
+const $ = (id) => document.getElementById(id);
+
+// Storage helpers (booth counter + shuffle bag survive a page refresh on this device)
+function load(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; } }
+function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+
+let stats = load("hw-stats", { played: 0, correct: 0 });
+let bag = load("hw-bag", []);
+let lastIdx = load("hw-last", -1);
+
+function renderStats() {
+  $("stats").textContent = `참여 ${stats.played}명 · 한 번에 정답 ${stats.correct}명 · 건강상 ${stats.health || 0} · 지킴상 ${stats.guard || 0}`;
+}
+
+// Gift pick: one box shows 건강상 and the other 지킴상; which one the player wins is decided in pickGift.
+const PRIZES = [
+  { key: "health", name: "💚 건강상", text: "튼튼하고 건강하게 자라라는 웰리의 선물이에요!", img: "img/welly-smile.png" },
+  { key: "guard", name: "💛 지킴상", text: "내 몸과 마음을 잘 지키라는 키미의 선물이에요!", img: "img/kimi-smile.png" }
+];
+let boxPrizes = [];
+function showGifts() {
+  boxPrizes = Math.random() < 0.5 ? [PRIZES[0], PRIZES[1]] : [PRIZES[1], PRIZES[0]];
+  [0, 1].forEach((i) => {
+    const g = $("gift-" + i);
+    g.disabled = false; g.classList.remove("open", "other");
+    const img = g.querySelector(".prize img");
+    img.src = boxPrizes[i].img; img.alt = boxPrizes[i].name;
+  });
+  $("prize-banner").hidden = true; $("btn-again").hidden = true;
+  show("screen-gift");
+}
+// The picked box wins 건강상 30% / 지킴상 70%; the other box shows the remaining prize.
+const HEALTH_RATE = 0.3;
+function pickGift(i) {
+  const p = Math.random() < HEALTH_RATE ? PRIZES[0] : PRIZES[1];
+  boxPrizes[i] = p; boxPrizes[1 - i] = p === PRIZES[0] ? PRIZES[1] : PRIZES[0];
+  [0, 1].forEach((j) => { const img = $("gift-" + j).querySelector(".prize img"); img.src = boxPrizes[j].img; img.alt = boxPrizes[j].name; });
+  [0, 1].forEach((j) => { const g = $("gift-" + j); g.disabled = true; g.classList.add("open"); if (j !== i) g.classList.add("other"); });
+  $("prize-name").textContent = p.name + " 당첨!";
+  $("prize-text").textContent = p.text;
+  $("prize-banner").hidden = false; $("btn-again").hidden = false;
+  stats[p.key] = (stats[p.key] || 0) + 1; save("hw-stats", stats); renderStats();
+  $("btn-again").focus({ preventScroll: true });
+}
+$("gift-0").addEventListener("click", () => pickGift(0));
+$("gift-1").addEventListener("click", () => pickGift(1));
+
+// Shuffle bag: every question appears once before any repeats, never twice in a row
+function nextIndex() {
+  if (!bag.length) {
+    bag = QUESTIONS.map((_, i) => i);
+    for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; }
+    if (bag.length > 1 && bag[bag.length - 1] === lastIdx) [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+  }
+  const idx = bag.pop();
+  lastIdx = idx; save("hw-bag", bag); save("hw-last", lastIdx);
+  return idx;
+}
+
+function show(id) {
+  ["screen-start", "screen-quiz", "screen-gift"].forEach((s) => { const el = $(s); el.hidden = s !== id; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); });
+}
+
+function startQuiz() {
+  const q = QUESTIONS[nextIndex()];
+  $("q-tag").textContent = q.type;
+  $("q-text").textContent = q.q;
+  const box = $("q-choices");
+  box.className = "choices" + (q.type === "OX" ? " ox" : "");
+  box.innerHTML = "";
+  q.choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "choice"; b.type = "button";
+    if (q.type === "OX") b.textContent = c;
+    else { b.innerHTML = `<span class="num">${NUMS[i]}</span><span></span>`; b.lastChild.textContent = c; }
+    b.addEventListener("click", () => answer(q, i));
+    box.appendChild(b);
+  });
+  $("q-feedback").hidden = true; $("btn-next").hidden = true; missed = false;
+  show("screen-quiz");
+}
+
+// Wrong picks stay crossed out and the player tries again until they find the answer.
+let missed = false;
+function answer(q, picked) {
+  const right = picked === q.answer;
+  const buttons = [...$("q-choices").children];
+  const fb = $("q-feedback");
+  if (!right) {
+    missed = true;
+    buttons[picked].disabled = true;
+    buttons[picked].classList.add("picked-wrong");
+    fb.className = "feedback pop no";
+    $("fb-head").textContent = "❌ 다시 골라 볼까요?";
+    $("fb-text").textContent = q.hint;
+    $("fb-welly").src = "img/welly-sad.png";
+    $("fb-kimi").src = "img/kimi-sad.png";
+    fb.hidden = false;
+    return;
+  }
+  buttons.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.answer) b.classList.add("correct");
+    else if (!b.classList.contains("picked-wrong")) b.classList.add("dim");
+  });
+  fb.className = "feedback pop ok";
+  $("fb-head").textContent = missed ? "⭕ 정답! 잘 찾았어요" : "⭕ 정답!";
+  $("fb-text").textContent = q.ok;
+  $("fb-welly").src = "img/welly-smile.png";
+  $("fb-kimi").src = "img/kimi-smile.png";
+  fb.hidden = false; $("btn-next").hidden = false;
+  stats.played++; if (!missed) stats.correct++; save("hw-stats", stats); renderStats();
+  $("btn-next").focus({ preventScroll: true });
+}
+
+let resetArmed = false;
+$("btn-reset").addEventListener("click", () => {
+  if (!resetArmed) { resetArmed = true; $("btn-reset").textContent = "한 번 더 누르면 초기화"; setTimeout(() => { resetArmed = false; $("btn-reset").textContent = "기록 초기화"; }, 3000); return; }
+  stats = { played: 0, correct: 0, health: 0, guard: 0 }; save("hw-stats", stats); renderStats();
+  resetArmed = false; $("btn-reset").textContent = "기록 초기화";
+});
+$("btn-start").addEventListener("click", startQuiz);
+$("btn-next").addEventListener("click", showGifts);
+$("btn-again").addEventListener("click", () => show("screen-start"));
+renderStats();
+</script>
+</body>
+</html>
