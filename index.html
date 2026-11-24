@@ -38,16 +38,17 @@
   --body: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   color-scheme: light;
 }
-html, body { height: 100%; }
+html, body { min-height: 100%; }
+html { height: 100%; }
 body {
   background: var(--bg) linear-gradient(160deg, var(--yeondu) 0%, var(--yeondu) 45%, var(--haneul) 100%) fixed;
   color: var(--ink); font-family: var(--body);
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 16px; box-sizing: border-box;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  display: flex; flex-direction: column; align-items: center;
 }
-.wrap { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
+.wrap { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 16px; margin-block: auto; }
 .brand { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .brand img { display: block; height: clamp(28px, 6vw, 44px); width: auto; max-width: 100%; }
 .badge { font-family: var(--display); font-size: 1rem; background: var(--sun-soft); color: var(--ink); padding: 6px 14px; border-radius: 999px; }
@@ -131,6 +132,28 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 .prize-banner { text-align: center; display: flex; flex-direction: column; gap: 6px; border-radius: 20px; padding: 20px; background: var(--sun-soft); }
 .prize-banner .big { font-family: var(--display); font-size: clamp(2.2rem, 8vw, 3.4rem); color: var(--blue); }
 @media (prefers-reduced-motion: reduce) { .gift .lid, .gift .bow, .gift .prize, .gift .art { transition: none; } }
+
+/* Landscape tablet: use the width — question on the left, answers on the right — so a screen fits without scrolling */
+@media (orientation: landscape) and (min-width: 900px) {
+  .wrap { max-width: 1120px; }
+  #screen-start:not([hidden]) { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto auto; column-gap: 48px; row-gap: 20px; align-items: center; }
+  #screen-start .chars { grid-row: 1 / 4; }
+  #screen-start .chars .welly { width: 200px; }
+  #screen-start .chars .kimi { width: 140px; }
+  #screen-quiz:not([hidden]) { display: grid; grid-template-columns: 1fr 1.1fr; column-gap: 36px; row-gap: 18px; align-content: start; }
+  #screen-quiz .q-head { grid-column: 1; grid-row: 1; }
+  #screen-quiz h2 { grid-column: 1; grid-row: 2; }
+  #screen-quiz .feedback { grid-column: 1; grid-row: 3; align-self: start; }
+  #screen-quiz .choices { grid-column: 2; grid-row: 1 / 3; align-self: center; }
+  #screen-quiz #btn-next { grid-column: 2; grid-row: 3; align-self: end; }
+  #screen-quiz .choices:not(.ox) { grid-template-columns: 1fr; gap: 12px; }
+  #screen-quiz .choice { padding: 14px 18px; }
+  #screen-gift:not([hidden]) { display: grid; grid-template-columns: 1.3fr 1fr; column-gap: 36px; row-gap: 16px; align-items: center; }
+  #screen-gift h2 { grid-column: 1 / 3; }
+  #screen-gift .gifts { grid-column: 1; grid-row: 2 / 4; padding-top: 24px; }
+  #screen-gift .prize-banner { grid-column: 2; grid-row: 2; }
+  #screen-gift #btn-again { grid-column: 2; grid-row: 3; }
+}
 .staff { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: .9rem; color: var(--muted); }
 .staff button { background: none; color: var(--muted); text-decoration: underline; font-size: .9rem; padding: 4px; }
 .staff span { font-variant-numeric: tabular-nums; }
