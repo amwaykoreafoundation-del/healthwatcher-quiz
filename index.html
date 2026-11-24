@@ -153,6 +153,7 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
   #screen-gift .gifts { grid-column: 1; grid-row: 2 / 4; padding-top: 24px; }
   #screen-gift .prize-banner { grid-column: 2; grid-row: 2; }
   #screen-gift #btn-again { grid-column: 2; grid-row: 3; }
+  #screen-gift:has(#prize-banner[hidden]) .gifts { grid-column: 1 / 3; width: 100%; max-width: 640px; justify-self: center; }
 }
 .staff { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: .9rem; color: var(--muted); }
 .staff button { background: none; color: var(--muted); text-decoration: underline; font-size: .9rem; padding: 4px; }
