@@ -312,8 +312,8 @@ function showGifts() {
   $("prize-banner").hidden = true; $("btn-again").hidden = true;
   show("screen-gift");
 }
-// The picked box wins 건강상 30% / 지킴상 70%; the other box shows the remaining prize.
-const HEALTH_RATE = 0.3;
+// The picked box wins 건강상 50% / 지킴상 50%; the other box shows the remaining prize.
+const HEALTH_RATE = 0.5;
 function pickGift(i) {
   const p = Math.random() < HEALTH_RATE ? PRIZES[0] : PRIZES[1];
   boxPrizes[i] = p; boxPrizes[1 - i] = p === PRIZES[0] ? PRIZES[1] : PRIZES[0];
